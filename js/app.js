@@ -225,7 +225,7 @@ const app = {
         },
         {
             id: "stretch",
-            label: "🧘 Stretch for one minute",
+            label: "🧘 Stretch for 1 minute",
             category: OrangeCategory.BODY,
             done: false
         },
@@ -243,7 +243,7 @@ const app = {
         },
         {
             id: "break",
-            label: "⏸️ Take a 5-minute-break",
+            label: "⏸️ Take a 5-minute break",
             category: OrangeCategory.COGNITION,
             done: false
         },
@@ -495,9 +495,6 @@ function renderOrangeMode() {
         <p>
             Let's slow down. You are going to be ok 🩷
         </p>
-        <p>
-            Your nervous system is asking for a little care ✨
-        </p>
     `;
     for (const category of orangeCategories) {
         console.log(category);
@@ -539,7 +536,7 @@ function renderYellowMode() {
             Your nervous system is asking for a little attention 💛
         </p>
         <p>
-            Let's slow things down before things become overwhelming 🌼
+            Let's slow things down 🌼
         </p>
     `;
     for (const category of yellowCategories) {
@@ -652,7 +649,7 @@ function renderGreenMode() {
         <p>
             Your nervous system seems to be in a good place today. Take a moment to appreciate that and enjoy being Burrito!
         </p>
-        <h3>Achivement Unlocked: Stable Burrito has appeared!</h3>
+        <h3>Achievement Unlocked: Stable Burrito has appeared!</h3>
         <p>Current bonuses:</p>
         <ul>
             <li>+ Clear thinking</li>
