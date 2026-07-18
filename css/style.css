@@ -46,3 +46,9 @@ h1 {
     margin-bottom: 15px;
     background: #ffe8cc;
 }
+
+.big-button {
+    font-size: 0.9rem;
+    padding: 5px;
+    margin-bottom: 10px;
+}
