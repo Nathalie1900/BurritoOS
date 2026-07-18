@@ -1,7 +1,3 @@
-// Starts everything.
-// Load -> Initialize -> Render -> Done
-
-
 ////////CONSTANTS////////
 
 const AppState = {
@@ -150,6 +146,25 @@ const YellowCategory = {
 const yellowCategories = [
     YellowCategory.GROUNDING
 ];
+
+const VulnerabilityCategory = {
+    SLEEP: "🌙 Sleep",
+    BODY: "🍽️ Body",
+    STRESS: "🧠 Stress",
+    SOCIAL: "👥 Social",
+    SELFCARE: "💊 Self-Care",
+    EMOTIONAL: "🌧️ Emotional"
+};
+
+const vulnerabilityCategories = [
+    VulnerabilityCategory.SLEEP,
+    VulnerabilityCategory.BODY,
+    VulnerabilityCategory.STRESS,
+    VulnerabilityCategory.SOCIAL,
+    VulnerabilityCategory.SELFCARE,
+    VulnerabilityCategory.EMOTIONAL
+];
+
 
 ////////APP DATA////////
 
@@ -310,6 +325,93 @@ const app = {
         elapsed: 0,
         interval: null
     },
+    vulnerabilityItems: [
+        {
+            id: "hours",
+            text: "I slept less than 8 hours",
+            category: VulnerabilityCategory.SLEEP,
+            checked: false
+        },
+        {
+            id: "tired",
+            text: "I woke up already feeling tired",
+            category: VulnerabilityCategory.SLEEP,
+            checked: false
+        },
+        {
+            id: "breakfast",
+            text: "I skipped breakfast",
+            category: VulnerabilityCategory.BODY,
+            checked: false
+        },
+        {
+            id: "water",
+            text: "I haven't had much water today",
+            category: VulnerabilityCategory.BODY,
+            checked: false
+        },
+        {
+            id: "ill",
+            text: "I'm feeling physically ill",
+            category: VulnerabilityCategory.BODY,
+            checked: false
+        },
+        {
+            id: "coffee",
+            text: "I had more caffeine than usual",
+            category: VulnerabilityCategory.BODY,
+            checked: false
+        },
+        {
+            id: "week",
+            text: "I've had a rough week",
+            category: VulnerabilityCategory.STRESS,
+            checked: false
+        },
+        {
+            id: "week",
+            text: "I've had very little time to rest",
+            category: VulnerabilityCategory.STRESS,
+            checked: false
+        },
+        {
+            id: "social exhaustion",
+            text: "I feel socially exhausted",
+            category: VulnerabilityCategory.SOCIAL,
+            checked: false
+        },
+        {
+            id: "loneliness",
+            text: "I have felt lonely today",
+            category: VulnerabilityCategory.SOCIAL,
+            checked: false
+        },
+        {
+            id: "medication",
+            text: "I forgot my medication",
+            category: VulnerabilityCategory.SELFCARE,
+            checked: false
+        },
+        {
+            id: "upset",
+            text: "Something upsetting happened recently",
+            category: VulnerabilityCategory.EMOTIONAL,
+            checked: false
+        },
+        {
+            id: "sensitive",
+            text: "I've been feeling emotionally sensitive today",
+            category: VulnerabilityCategory.EMOTIONAL,
+            checked: false
+        },
+        {
+            id: "frustrations",
+            text: "I've had several small frustrations pile up",
+            category: VulnerabilityCategory.EMOTIONAL,
+            checked: false
+        }
+    ],
+    vulnerabilityResult: null,
 };
 
 console.log(app.user.name);
@@ -448,7 +550,7 @@ function renderCrisisMode() {
         }
     }
     html += `
-        <button onclick="restartCheckIn()">
+        <button class="big-button" onclick="restartCheckIn()">
             I'm ready to check in again
         </button>
     `;
@@ -521,7 +623,7 @@ function renderOrangeMode() {
         }
     }
     html += `
-        <button onclick="restartCheckIn()">
+        <button class="big-button" onclick="restartCheckIn()">
             I'm ready to check in again
         </button>
     `;
@@ -566,10 +668,11 @@ function renderYellowMode() {
     html += renderBreathingTimer();
     html += `
         <hr>
-        <button onclick="restartCheckIn()">
+        <button class="big-button" onclick="restartCheckIn()">
             I'm ready to check in again
         </button>
     `;
+    html += renderVulnerabilityTracker();
     return html;
 }
 
@@ -632,7 +735,7 @@ function renderRecoveryMode() {
             <li>🌸 No analysis of the situation for at least 24 hours</li>
         </ul>
         <hr>
-        <button onclick="restartCheckIn()">
+        <button class="big-button" onclick="restartCheckIn()">
             I'm ready to check in again
         </button>
     `;
@@ -667,10 +770,54 @@ function renderGreenMode() {
         </ul>
         <p>Being alive doesn't always have to be hard. You deserve ordinary, peaceful days too 🩷</p>
         <hr>
-        <button onclick="restartCheckIn()">
+        <button class="big-button" onclick="restartCheckIn()">
             I'm ready to check in again
         </button>
     `;
+    html += renderVulnerabilityTracker();
+    return html;
+}
+
+function renderVulnerabilityTracker() {
+    let html = `
+        <hr>
+        <h2>Vulnerability Tracker</h2>
+        <p>
+            Which of these apply today?
+        </p>
+    `;
+    for (const category of vulnerabilityCategories) {
+        console.log(category);
+        html += `
+            <h3>${category}</h3>
+        `;
+        const items = app.vulnerabilityItems.filter(
+            item => item.category === category
+        );
+        for (const item of items) {
+            html += `
+            <button
+                onclick="toggleVulnerability('${item.id}')">
+                ${item.checked ? "☑" : "☐"}
+                ${item.text}
+            </button>
+            <br><br>
+            `;
+        }
+    }
+    html += `
+    <hr>
+    <button class="big-button" onclick="calculateVulnerability()">
+        Calculate Vulnerability
+    </button>
+    `;
+    if (app.vulnerabilityResult) {
+        html += `
+        <hr>
+        <h3>${app.vulnerabilityResult.title}</h3>
+        <p>${app.vulnerabilityResult.message}</p>
+        `;
+    }
     return html;
 }
 
@@ -788,6 +935,49 @@ function stopBreathing() {
     app.breathing.running = false;
     app.breathing.interval = null;
     app.breathing.elapsed = 0;
+    render();
+}
+
+function toggleVulnerability(id) {
+    const item = app.vulnerabilityItems.find(
+        item => item.id === id
+    );
+    item.checked = !item.checked;
+    render();
+}
+
+function calculateVulnerability() {
+    const score = app.vulnerabilityItems.filter(
+        item => item.checked
+    ).length;
+    if (score <= 2) {
+        app.vulnerabilityResult = {
+            title: "Vulnerability Result: 🎒 Light backpack",
+            message:
+                "Congrats! Your nervous system isn't carrying much extra today."
+        };
+    }
+    else if (score <= 5) {
+        app.vulnerabilityResult = {
+            title: "Vulnerability Result: 🎒🎒 Medium backpack",
+            message:
+                "You're carrying a few extra things. This doesn't mean something bad will happen—it means being a little gentler with yourself today is a good idea."
+        };
+    }
+    else if (score <= 7) {
+        app.vulnerabilityResult = {
+            title: "Vulnerability Result: 🎒🎒🎒 Heavy backpack",
+            message:
+                "Your nervous system is working harder than usual. Consider reducing unnecessary demands, taking breaks, and using some of your regulation tools before things become overwhelming."
+        };
+    }
+    else {
+        app.vulnerabilityResult = {
+            title: "Vulnerability Result: 🎒🎒🎒🎒 REALLY Heavy backpack",
+            message:
+                "Today is not the day to expect your best performance from yourself. Focus on meeting your basic needs and lowering your load where you can. If strong emotions appear, remember that your nervous system is already under significant strain."
+        };
+    }
     render();
 }
 
